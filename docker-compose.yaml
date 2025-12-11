@@ -1,0 +1,16 @@
+services:
+  api:
+    container_name: glacier_watch_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://glacier_user:glacier_pass@postgres:5432/glacier_db
+    networks:
+      - glacier_watch_ingest_default
+
+networks:
+  glacier_watch_ingest_default:
+    external: true
