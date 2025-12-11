@@ -3,6 +3,7 @@ from sqlalchemy import func, select
 
 from src.logger import get_logger
 from src.db import get_db_session
+from src.config import config
 from src.models import Glacier, Project, Scene, GlacierSnowData, SceneStatusEnum
 
 router = APIRouter()
@@ -143,8 +144,11 @@ async def get_scene_details(scene_id: str, db=Depends(get_db_session)):
     "/scene/{scene_id}/status/{new_status}", name="Update Scene", tags=["Scenes"]
 )
 async def update_scene_status(
-    scene_id: str, new_status: SceneStatusEnum, db=Depends(get_db_session)
+    scene_id: str, new_status: SceneStatusEnum, api_key: str, db=Depends(get_db_session)
 ):
+    if api_key != config.api_key:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+
     scene = await db.execute(select(Scene).filter(Scene.scene_id == scene_id))
     scene = scene.scalars().first()
     if not scene:
