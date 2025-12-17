@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Dict
 
 from pythonjsonlogger.json import JsonFormatter
 
@@ -14,12 +14,12 @@ class CustomJsonFormatter(JsonFormatter):
 
     def add_fields(
         self,
-        log_record: dict[str, Any],
+        log_data: Dict[str, Any],
         record: logging.LogRecord,
-        message_dict: dict[str, Any],
+        message_dict: Dict[str, Any],
     ) -> None:
-        super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
-        log_record["location"] = f"{record.filename}:{record.lineno}"
+        super().add_fields(log_data, record, message_dict)
+        log_data["location"] = f"{record.filename}:{record.lineno}"
 
 
 class ContextFilter(logging.Filter):

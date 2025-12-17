@@ -1,0 +1,46 @@
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
+from src.schemas.glacier import GlacierListItem
+from src.schemas.scene import SceneListItem
+from src.schemas.shared import GeoJSON
+
+
+class ProjectListItem(BaseModel):
+    project_id: str = Field(..., description="Unique identifier for the project")
+    name: str = Field(..., description="Name of the project")
+
+
+class ProjectListOut(ProjectListItem):
+    point: Optional[tuple[float, float]] = Field(
+        None,
+        description="Coordinates of a point within the project's area of interest [latitude, longitude]",
+    )
+
+
+class ProjectDetails(ProjectListItem):
+    description: str = Field(..., description="Detailed description of the project")
+    aoi: Optional[GeoJSON] = Field(
+        None, description="GeoJSON representation of the project's area of interest"
+    )
+    glaciers: list[GlacierListItem] = Field(
+        ..., description="List of glaciers associated with the project"
+    )
+    scenes: list[SceneListItem] = Field(
+        ..., description="List of scenes associated with the project"
+    )
+
+
+class ProjectDetailsOut(BaseModel):
+    project: ProjectDetails = Field(
+        ..., description="Detailed information about the project"
+    )
+    map_center: Optional[tuple[float, float]] = Field(
+        None,
+        description="Latitude and longitude of the center point of the project's area of interest",
+    )
+    map_bounds: Optional[tuple[tuple[float, float], tuple[float, float]]] = Field(
+        None,
+        description="Latitude and longitude of the bounding box of the project's area of interest (min_lat - S, min_lon - W), (max_lat - N, max_lon - E)",
+    )

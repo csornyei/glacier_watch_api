@@ -11,5 +11,12 @@ dependencies = [
     "psycopg>=3.3.2",
     "python-dotenv>=1.2.1",
     "python-json-logger>=4.0.0",
-    "sqlalchemy>=2.0.45",
+    "sqlalchemy[asyncio]>=2.0.45",
+]
+
+[dependency-groups]
+dev = [
+    "isort>=7.0.0",
+    "ruff>=0.14.9",
+    "ty>=0.0.2",
 ]
