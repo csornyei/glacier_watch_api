@@ -33,6 +33,19 @@ async def fetch_projects(db: AsyncSession) -> list:
     return [row for row in project_rows.all()]
 
 
+async def fetch_projects_bounds(db):
+    res = await db.execute(
+        select(
+            func.ST_XMin(func.ST_Extent(Project.area_of_interest)).label("min_lon"),
+            func.ST_YMin(func.ST_Extent(Project.area_of_interest)).label("min_lat"),
+            func.ST_XMax(func.ST_Extent(Project.area_of_interest)).label("max_lon"),
+            func.ST_YMax(func.ST_Extent(Project.area_of_interest)).label("max_lat"),
+        ).where(Project.area_of_interest.isnot(None))
+    )
+
+    return res.first()
+
+
 async def fetch_project_row(db: AsyncSession, project_id: str) -> ProjectRow:
     project_result = await db.execute(
         select(

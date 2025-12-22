@@ -12,10 +12,20 @@ class ProjectListItem(BaseModel):
     name: str = Field(..., description="Name of the project")
 
 
-class ProjectListOut(ProjectListItem):
+class ProjectList(ProjectListItem):
     point: Optional[tuple[float, float]] = Field(
         None,
         description="Coordinates of a point within the project's area of interest [latitude, longitude]",
+    )
+
+
+class ListProjectsOut(BaseModel):
+    projects: list[ProjectList] = Field(
+        ..., description="List of projects with basic information"
+    )
+    map_bounds: Optional[tuple[tuple[float, float], tuple[float, float]]] = Field(
+        None,
+        description="Latitude and longitude of the bounding box of all projects' areas of interest (min_lat - S, min_lon - W), (max_lat - N, max_lon - E)",
     )
 
 
@@ -43,4 +53,7 @@ class ProjectDetailsOut(BaseModel):
     map_bounds: Optional[tuple[tuple[float, float], tuple[float, float]]] = Field(
         None,
         description="Latitude and longitude of the bounding box of the project's area of interest (min_lat - S, min_lon - W), (max_lat - N, max_lon - E)",
+    )
+    scene_total_count: int = Field(
+        ..., description="Total number of scenes associated with the project"
     )

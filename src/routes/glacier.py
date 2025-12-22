@@ -36,6 +36,7 @@ async def get_glacier_details(
     result = GlacierDetailsOut(
         glacier_id=glacier.glacier_id,
         name=glacier.name,
+        area_m2=glacier.area_m2,
         geometry=json.loads(glacier.geometry_geojson),
     )
 

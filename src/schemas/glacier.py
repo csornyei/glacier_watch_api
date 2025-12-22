@@ -18,6 +18,9 @@ class GlacierListItem(BaseModel):
 class GlacierDetailsOut(BaseModel):
     glacier_id: str = Field(..., description="Unique identifier for the glacier")
     name: Optional[str] = Field(None, description="Name of the glacier")
+    area_m2: Optional[float] = Field(
+        None, description="Area of the glacier in square meters"
+    )
     geometry: Optional[GeoJSON] = Field(
         None, description="GeoJSON representation of the glacier geometry"
     )

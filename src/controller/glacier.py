@@ -43,6 +43,7 @@ async def fetch_glacier_details(db: AsyncSession, glacier_id: str):
         select(
             Glacier.glacier_id,
             Glacier.name,
+            Glacier.area_m2,
             func.ST_AsGeoJSON(Glacier.geometry).label("geometry_geojson"),
         ).filter(Glacier.glacier_id == glacier_id)
     )

@@ -1,11 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from src.controller.glacier import fetch_glacier_in_geometry, glacier_rows_to_list_items
-from src.controller.project import fetch_project_row, fetch_projects
+from src.controller.project import (
+    fetch_project_row,
+    fetch_projects,
+    fetch_projects_bounds,
+)
 from src.controller.scene import count_scenes_by_project_id, fetch_scenes_by_project_id
 from src.db import get_db_session
 from src.logger import get_logger
-from src.schemas.project import ProjectDetailsOut, ProjectListOut
+from src.schemas.project import ListProjectsOut, ProjectDetailsOut, ProjectList
 from src.utils.geo import bounds_from_minmax, geojson_point_to_latlng, geojson_to_model
 
 router = APIRouter()
@@ -16,22 +20,33 @@ logger = get_logger("glacier_watch")
 @router.get(
     "/",
     name="List Projects",
-    response_model=list[ProjectListOut],
+    response_model=ListProjectsOut,
 )
 async def list_projects(db=Depends(get_db_session)):
     logger.info("Fetching list of projects")
     projects = await fetch_projects(db)
 
+    bounds = await fetch_projects_bounds(db)
+
     logger.info(f"Fetched {len(projects)} projects")
 
-    return [
-        {
-            "project_id": project.project_id,
-            "name": project.name,
-            "point": geojson_point_to_latlng(project.center_geojson),
-        }
+    projects = [
+        ProjectList(
+            project_id=project.project_id,
+            name=project.name,
+            point=geojson_point_to_latlng(project.center_geojson),
+        )
         for project in projects
     ]
+
+    response = ListProjectsOut(
+        projects=projects,
+        map_bounds=bounds_from_minmax(
+            bounds.min_lat, bounds.min_lon, bounds.max_lat, bounds.max_lon
+        ),
+    )
+
+    return response
 
 
 @router.get(
@@ -86,4 +101,5 @@ async def get_project_details(
         },
         "map_center": center,
         "map_bounds": bounds,
+        "scene_total_count": total_scenes,
     }
