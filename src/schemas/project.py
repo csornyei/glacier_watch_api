@@ -19,6 +19,20 @@ class ProjectList(ProjectListItem):
     )
 
 
+class ProjectCreateIn(BaseModel):
+    project_id: str = Field(..., description="Unique identifier for the project")
+    name: str = Field(..., description="Name of the project")
+    description: Optional[str] = Field(
+        None, description="Detailed description of the project"
+    )
+    aoi: Optional[GeoJSON] = Field(
+        None, description="GeoJSON representation of the project's area of interest"
+    )
+    bands: list[str] = Field(
+        ..., description="List of spectral bands relevant to the project", min_length=1
+    )
+
+
 class ListProjectsOut(BaseModel):
     projects: list[ProjectList] = Field(
         ..., description="List of projects with basic information"
