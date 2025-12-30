@@ -73,17 +73,29 @@ async def fetch_project_row(db: AsyncSession, project_id: str) -> ProjectRow:
     return project_result.first()
 
 
+def get_project_folder_path(project_id: str) -> Path:
+    return config.data_folder_path / project_id
+
+
 def create_project_folder(project_id: str) -> Path:
-    base_path = config.data_folder_path
+    project_folder_path = get_project_folder_path(project_id)
 
-    if not base_path.exists():
-        base_path.mkdir(parents=True, exist_ok=True)
+    if not project_folder_path.parent.exists():
+        project_folder_path.parent.mkdir(parents=True, exist_ok=True)
 
-    project_path = base_path / project_id
+    project_folder_path.mkdir(parents=True, exist_ok=True)
 
-    project_path.mkdir(parents=True, exist_ok=True)
+    return project_folder_path
 
-    return project_path
+
+def read_project_config(project_id: str):
+    project_path = get_project_folder_path(project_id)
+    config_path = project_path / "config.yaml"
+
+    with open(config_path, "r") as config_file:
+        content = yaml.safe_load(config_file)
+
+    return content
 
 
 def save_project_config(project_path: Path, config_data: dict):

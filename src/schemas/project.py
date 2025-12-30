@@ -71,3 +71,14 @@ class ProjectDetailsOut(BaseModel):
     scene_total_count: int = Field(
         ..., description="Total number of scenes associated with the project"
     )
+
+
+class ProjectConfig(BaseModel):
+    bands: list[str] = Field(
+        ..., description="List of spectral bands relevant to the project", min_length=1
+    )
+    project_id: str = Field(..., description="Unique identifier for the project")
+    min_coverage_percent: Optional[int] = Field(
+        60,
+        description="Minimum coverage percentage for scenes to be included in the project",
+    )

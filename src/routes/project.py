@@ -12,6 +12,7 @@ from src.schemas.project import (
     ProjectList,
     ProjectCreateIn,
     ProjectListItem,
+    ProjectConfig,
 )
 from src.utils.geo import bounds_from_minmax, geojson_point_to_latlng, geojson_to_model
 
@@ -164,3 +165,52 @@ async def get_project_details(
         "map_bounds": bounds,
         "scene_total_count": total_scenes,
     }
+
+
+@router.get(
+    "/{project_id}/config",
+    name="Get project configuration",
+    response_model=ProjectConfig,
+)
+async def get_project_config(project_id: str, db=Depends(get_db_session)):
+    logger.info(f"Fetching project details for project_id={project_id}")
+
+    project = await project_controller.fetch_project_row(db, project_id)
+
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    config_data = project_controller.read_project_config(project.project_id)
+
+    return config_data
+
+
+@router.post(
+    "/{project_id}/config",
+    name="Update project configuration",
+    response_model=ProjectConfig,
+)
+async def update_project_config(
+    project_id: str,
+    config_data: ProjectConfig,
+    db=Depends(get_db_session),
+):
+    logger.info(f"Updating project config for project_id={project_id}")
+
+    project = await project_controller.fetch_project_row(db, project_id)
+
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    project_folder_path = project_controller.get_project_folder_path(project.project_id)
+
+    if not project_folder_path.exists():
+        raise HTTPException(status_code=500, detail="Project folder does not exist")
+
+    project_controller.save_project_config(
+        project_folder_path, config_data.model_dump()
+    )
+
+    logger.info(f"Project config updated for project_id={project_id}")
+
+    return config_data
